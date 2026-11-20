@@ -22,18 +22,18 @@ $now = date('Y-m-d H:i:s');
 echo "[{$now}] Running FeedPulse AI SLA Escalation Engine...\n";
 
 // Lookup active administrative system account
-$sysUserStmt = $pdo->query('SELECT id FROM users WHERE role = "super_admin" AND is_active = 1 ORDER BY id ASC LIMIT 1');
+$sysUserStmt = $pdo->query("SELECT id FROM users WHERE role = 'super_admin' AND is_active = 1 ORDER BY id ASC LIMIT 1");
 $systemUserId = (int) ($sysUserStmt->fetchColumn() ?: 1);
 
 // ── 1. Detect & Escalate SLA Breaches ───────────────────────
 $breachStmt = $pdo->prepare(
-    'SELECT c.*, d.name as dept_name 
+    "SELECT c.*, d.name as dept_name 
      FROM complaints c
      JOIN departments d ON c.department_id = d.id
      WHERE c.status IN ('open', 'in_progress')
        AND c.sla_deadline IS NOT NULL
        AND c.sla_deadline < NOW()
-       AND c.sla_breached = 0'
+       AND c.sla_breached = 0"
 );
 $breachStmt->execute();
 $breachedTickets = $breachStmt->fetchAll();
@@ -48,16 +48,16 @@ foreach ($breachedTickets as $ticket) {
 
     // Update complaint record
     $pdo->prepare(
-        'UPDATE complaints 
-         SET sla_breached = 1, status = "escalated", priority = "critical", 
+        "UPDATE complaints 
+         SET sla_breached = 1, status = 'escalated', priority = 'critical', 
              escalated_at = NOW(), escalation_count = escalation_count + 1, updated_at = NOW() 
-         WHERE id = ?'
+         WHERE id = ?"
     )->execute([$ticket['id']]);
 
     // Insert into audit trail
     $pdo->prepare(
-        'INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note) 
-         VALUES (?, ?, ?, "escalated", "Automated cron SLA breach escalation to CRITICAL")'
+        "INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note) 
+         VALUES (?, ?, ?, 'escalated', 'Automated cron SLA breach escalation to CRITICAL')"
     )->execute([$ticket['id'], $systemUserId, $ticket['status']]);
 
     // Insert into escalations log

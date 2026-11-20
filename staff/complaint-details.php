@@ -58,10 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Assign to me
     if ($action === 'claim') {
-        $pdo->prepare('UPDATE complaints SET assigned_to = ?, status = "in_progress", updated_at = NOW() WHERE id = ?')
+        $pdo->prepare("UPDATE complaints SET assigned_to = ?, status = 'in_progress', updated_at = NOW() WHERE id = ?")
             ->execute([$staffId, $complaintId]);
 
-        $pdo->prepare('INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note) VALUES (?, ?, ?, "in_progress", "Claimed by staff member")')
+        $pdo->prepare("INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note) VALUES (?, ?, ?, 'in_progress', 'Claimed by staff member')")
             ->execute([$complaintId, $staffId, $c['status']]);
 
         notifyComplaintUpdate($pdo, (int)$c['student_id'], $c, 'in_progress');

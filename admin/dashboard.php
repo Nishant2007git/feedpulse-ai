@@ -29,7 +29,7 @@ $escStmt = $pdo->query(
      JOIN departments d ON c.department_id = d.id
      JOIN users u ON c.student_id = u.id
      LEFT JOIN users staff ON c.assigned_to = staff.id
-     WHERE c.status = "escalated" OR c.sla_breached = 1
+     WHERE c.status = 'escalated' OR c.sla_breached = 1
      ORDER BY c.sla_breached DESC, c.created_at ASC
      LIMIT 5'
 );

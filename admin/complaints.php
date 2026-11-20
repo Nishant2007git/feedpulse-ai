@@ -50,13 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // 2. Manual Escalation
             if ($action === 'escalate') {
-                $pdo->prepare('UPDATE complaints SET status = "escalated", priority = "critical", escalated_at = NOW(), escalation_count = escalation_count + 1 WHERE id = ?')
+                $pdo->prepare("UPDATE complaints SET status = 'escalated', priority = 'critical', escalated_at = NOW(), escalation_count = escalation_count + 1 WHERE id = ?")
                     ->execute([$cid]);
 
-                $pdo->prepare('INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note) VALUES (?, ?, ?, "escalated", "Manually escalated to CRITICAL priority by Admin")')
+                $pdo->prepare("INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note) VALUES (?, ?, ?, 'escalated', 'Manually escalated to CRITICAL priority by Admin')")
                     ->execute([$cid, $adminId, $c['status']]);
 
-                $pdo->prepare('INSERT INTO complaint_escalations (complaint_id, escalated_from, escalated_to, reason, notified_user) VALUES (?, ?, "critical", "Admin manual escalation", ?)')
+                $pdo->prepare("INSERT INTO complaint_escalations (complaint_id, escalated_from, escalated_to, reason, notified_user) VALUES (?, ?, 'critical', 'Admin manual escalation', ?)")
                     ->execute([$cid, $c['priority'], $adminId]);
 
                 setFlash('warning', 'Ticket escalated to CRITICAL with priority flag.');
@@ -100,7 +100,7 @@ $paged = paginate($pdo, $countSql, $dataSql, $params, $page);
 
 // Department & Staff lookups
 $depts = $pdo->query('SELECT id, name, code FROM departments WHERE is_active = 1')->fetchAll();
-$staffMembers = $pdo->query('SELECT id, name, department_id FROM users WHERE role = "staff" AND is_active = 1')->fetchAll();
+$staffMembers = $pdo->query("SELECT id, name, department_id FROM users WHERE role = 'staff' AND is_active = 1")->fetchAll();
 
 $pageTitle = 'Manage All Complaints — ' . APP_NAME;
 require_once __DIR__ . '/../includes/header.php';

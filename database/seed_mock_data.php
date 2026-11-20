@@ -82,7 +82,7 @@ foreach ($students as [$name, $email, $deptId, $roll, $phone, $score, $tier]) {
 }
 
 // Ensure default student has points
-$pdo->prepare('INSERT INTO engagement_scores (student_id, score, tier) VALUES (4, 160, "gold") ON DUPLICATE KEY UPDATE score = 160, tier = "gold"')
+$pdo->prepare("INSERT INTO engagement_scores (student_id, score, tier) VALUES (4, 160, 'gold') ON DUPLICATE KEY UPDATE score = 160, tier = 'gold'")
     ->execute();
 
 // ── 2. Seed Rich Feedback Entries ───────────────────────────

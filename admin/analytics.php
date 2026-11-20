@@ -20,7 +20,7 @@ $deptStatsStmt = $pdo->query(
        ROUND(AVG(fb.rating), 1) as avg_rating
      FROM departments d
      LEFT JOIN complaints c ON c.department_id = d.id
-     LEFT JOIN feedback fb ON fb.department_id = d.id AND fb.moderation_status = "approved"
+     LEFT JOIN feedback fb ON fb.department_id = d.id AND fb.moderation_status = 'approved'
      GROUP BY d.id, d.name, d.code
      ORDER BY total_complaints DESC'
 );

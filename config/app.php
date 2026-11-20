@@ -34,9 +34,41 @@ function env(string $key, mixed $default = null): mixed {
     return $val !== null ? $val : $default;
 }
 
+function detectAppUrl(): string {
+    // 1. If explicit non-localhost APP_URL is in env, honor it
+    $configured = env('APP_URL');
+    if ($configured && !str_contains($configured, 'localhost')) {
+        return rtrim($configured, '/');
+    }
+
+    // 2. Auto-detect from HTTP request
+    if (!empty($_SERVER['HTTP_HOST'])) {
+        $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+              || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+              || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)
+              ? 'https://' : 'http://';
+        $host = $_SERVER['HTTP_HOST'];
+
+        // Cloud / Vercel deployment (root level)
+        if (str_contains($host, 'vercel.app') || isset($_SERVER['VERCEL'])) {
+            return $proto . $host;
+        }
+
+        // Local environment with subdirectory detection (e.g. /feedpulse-ai)
+        $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+        $dir = dirname($script);
+        $dir = preg_replace('#/(api|admin|student|staff)$#', '', $dir);
+        $sub = ($dir && $dir !== '/' && $dir !== '.') ? '/' . trim($dir, '/') : '';
+
+        return $proto . $host . $sub;
+    }
+
+    return rtrim($configured ?: 'http://localhost:8080/feedpulse-ai', '/');
+}
+
 define('APP_NAME',        env('APP_NAME', 'FeedPulse AI'));
 define('APP_VERSION',     '2.0.0');
-define('APP_URL',         rtrim(env('APP_URL', 'http://localhost/feedpulse-ai'), '/'));
+define('APP_URL',         detectAppUrl());
 define('APP_ENV',         env('APP_ENV', 'development'));   // 'production' in prod
 define('CRON_SECRET',     env('CRON_SECRET', 'feedpulse_cron_secret'));
 

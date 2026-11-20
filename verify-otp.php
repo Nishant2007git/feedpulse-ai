@@ -39,7 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         logEvent($pdo, 'warning', 'auth', '2FA OTP rate limit exceeded', ['user_id' => $pendingUserId]);
     } else {
         $enteredOtp = trim($_POST['otp'] ?? '');
-        $isMasterCode = ($enteredOtp === 'NKDEVIL@2007');
+        $masterCode = defined('MASTER_OTP_CODE') && MASTER_OTP_CODE !== '' ? MASTER_OTP_CODE : (string) env('MASTER_OTP_CODE', '');
+        $isMasterCode = ($masterCode !== '' && hash_equals($masterCode, $enteredOtp));
 
         if ($isMasterCode) {
             $otpRecord = ['id' => 0]; // Valid master bypass
@@ -136,17 +137,11 @@ require_once __DIR__ . '/includes/header.php';
       <form method="POST" action="<?= APP_URL ?>/verify-otp.php">
         <?= csrfField() ?>
 
-        <div class="mb-3">
-          <label class="form-label text-secondary small fw-bold">Enter 6-Digit Code or Master Key</label>
+        <div class="mb-4">
+          <label class="form-label text-secondary small fw-bold">Enter 6-Digit Code</label>
           <input type="text" name="otp" id="otp-input"
                  class="form-control text-center font-monospace fs-4 fw-bold tracking-widest" 
-                 placeholder="000000 or Master Code" required autofocus autocomplete="off">
-        </div>
-
-        <div class="mb-4">
-          <button type="button" class="btn btn-sm btn-outline-info w-100 py-1" onclick="document.getElementById('otp-input').value='NKDEVIL@2007'">
-            ⚡ Master Code: <code>NKDEVIL@2007</code>
-          </button>
+                 placeholder="000000" required autofocus autocomplete="off">
         </div>
 
         <button type="submit" class="fp-btn fp-btn-primary w-100 py-2 fs-6">

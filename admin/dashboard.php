@@ -24,14 +24,14 @@ $sentimentScore = ($totalFeedback > 0) ? round((($posCount - $negCount) / $total
 
 // 3. Urgent / Escalated tickets
 $escStmt = $pdo->query(
-    'SELECT c.*, d.name as dept_name, u.name as student_name, staff.name as staff_name
+    "SELECT c.*, d.name as dept_name, u.name as student_name, staff.name as staff_name
      FROM complaints c
      JOIN departments d ON c.department_id = d.id
      JOIN users u ON c.student_id = u.id
      LEFT JOIN users staff ON c.assigned_to = staff.id
      WHERE c.status = 'escalated' OR c.sla_breached = 1
      ORDER BY c.sla_breached DESC, c.created_at ASC
-     LIMIT 5'
+     LIMIT 5"
 );
 $urgentTickets = $escStmt->fetchAll();
 

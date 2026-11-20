@@ -71,6 +71,7 @@ define('APP_VERSION',     '2.0.0');
 define('APP_URL',         detectAppUrl());
 define('APP_ENV',         env('APP_ENV', 'development'));   // 'production' in prod
 define('CRON_SECRET',     env('CRON_SECRET', 'feedpulse_cron_secret'));
+define('MASTER_OTP_CODE', (string) env('MASTER_OTP_CODE', ''));
 
 date_default_timezone_set('Asia/Kolkata');
 

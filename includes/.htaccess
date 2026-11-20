@@ -1,0 +1,2 @@
+# Deny direct access to include fragments
+Deny from all

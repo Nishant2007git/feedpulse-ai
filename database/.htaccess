@@ -1,0 +1,4 @@
+# Deny direct browser access to SQL dump files
+<FilesMatch "(?i)\.(sql|md)$">
+    Deny from all
+</FilesMatch>

@@ -30,7 +30,7 @@ $breachStmt = $pdo->prepare(
     'SELECT c.*, d.name as dept_name 
      FROM complaints c
      JOIN departments d ON c.department_id = d.id
-     WHERE c.status IN ("open", "in_progress")
+     WHERE c.status IN ('open', 'in_progress')
        AND c.sla_deadline IS NOT NULL
        AND c.sla_deadline < NOW()
        AND c.sla_breached = 0'
@@ -41,7 +41,7 @@ $breachedTickets = $breachStmt->fetchAll();
 echo "Found " . count($breachedTickets) . " breached tickets.\n";
 
 // Fetch Super Admins for notification
-$admins = $pdo->query('SELECT id FROM users WHERE role IN ("admin", "super_admin") AND is_active = 1')->fetchAll();
+$admins = $pdo->query("SELECT id FROM users WHERE role IN ('admin', 'super_admin') AND is_active = 1")->fetchAll();
 
 foreach ($breachedTickets as $ticket) {
     echo "  -> Escalating {$ticket['reference_number']}...\n";
@@ -91,7 +91,7 @@ foreach ($breachedTickets as $ticket) {
 $warnStmt = $pdo->prepare(
     'SELECT c.* 
      FROM complaints c
-     WHERE c.status IN ("open", "in_progress")
+     WHERE c.status IN ('open', 'in_progress')
        AND c.sla_breached = 0
        AND c.sla_deadline BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 8 HOUR)'
 );

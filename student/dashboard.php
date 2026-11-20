@@ -22,7 +22,7 @@ $cStmt = $pdo->prepare('SELECT COUNT(*) FROM complaints WHERE student_id = ?');
 $cStmt->execute([$studentId]);
 $totalComplaints = (int)$cStmt->fetchColumn();
 
-$openStmt = $pdo->prepare('SELECT COUNT(*) FROM complaints WHERE student_id = ? AND status IN ("open","in_progress","escalated")');
+$openStmt = $pdo->prepare("SELECT COUNT(*) FROM complaints WHERE student_id = ? AND status IN ('open','in_progress','escalated')");
 $openStmt->execute([$studentId]);
 $activeComplaints = (int)$openStmt->fetchColumn();
 

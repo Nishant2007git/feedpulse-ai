@@ -57,7 +57,7 @@ if ($type === 'sla_compliance') {
            SUM(CASE WHEN sla_breached = 0 THEN 1 ELSE 0 END) as on_time,
            SUM(CASE WHEN sla_breached = 1 THEN 1 ELSE 0 END) as breached
          FROM complaints 
-         WHERE status IN ("resolved", "closed")'
+         WHERE status IN ('resolved', 'closed')"
     );
     $row = $stmt->fetch();
     $onTime = (int)($row['on_time'] ?? 0);

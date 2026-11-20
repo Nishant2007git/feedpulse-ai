@@ -13,13 +13,13 @@ $pdo = getDB();
 
 // 1. High-level KPI Metrics
 $totalFeedback = (int)$pdo->query('SELECT COUNT(*) FROM feedback')->fetchColumn();
-$pendingMod = (int)$pdo->query('SELECT COUNT(*) FROM feedback WHERE moderation_status = "pending"')->fetchColumn();
-$openComplaints = (int)$pdo->query('SELECT COUNT(*) FROM complaints WHERE status IN ("open","in_progress","escalated")')->fetchColumn();
-$breachedComplaints = (int)$pdo->query('SELECT COUNT(*) FROM complaints WHERE sla_breached = 1 AND status != "resolved"')->fetchColumn();
+$pendingMod = (int)$pdo->query("SELECT COUNT(*) FROM feedback WHERE moderation_status = 'pending'")->fetchColumn();
+$openComplaints = (int)$pdo->query("SELECT COUNT(*) FROM complaints WHERE status IN ('open','in_progress','escalated')")->fetchColumn();
+$breachedComplaints = (int)$pdo->query("SELECT COUNT(*) FROM complaints WHERE sla_breached = 1 AND status != 'resolved'")->fetchColumn();
 
 // 2. Net Sentiment calculation
-$posCount = (int)$pdo->query('SELECT COUNT(*) FROM feedback WHERE ai_sentiment = "positive"')->fetchColumn();
-$negCount = (int)$pdo->query('SELECT COUNT(*) FROM feedback WHERE ai_sentiment = "negative"')->fetchColumn();
+$posCount = (int)$pdo->query("SELECT COUNT(*) FROM feedback WHERE ai_sentiment = 'positive'")->fetchColumn();
+$negCount = (int)$pdo->query("SELECT COUNT(*) FROM feedback WHERE ai_sentiment = 'negative'")->fetchColumn();
 $sentimentScore = ($totalFeedback > 0) ? round((($posCount - $negCount) / $totalFeedback) * 100) : 74;
 
 // 3. Urgent / Escalated tickets

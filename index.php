@@ -23,7 +23,7 @@ $stats = [
 ];
 
 try {
-    $resCount = (int)$pdo->query('SELECT COUNT(*) FROM complaints WHERE status IN ("resolved", "closed")')->fetchColumn();
+    $resCount = (int)$pdo->query("SELECT COUNT(*) FROM complaints WHERE status IN ('resolved', 'closed')")->fetchColumn();
     $stats['resolved'] = $resCount;
 
     $deptCount = (int)$pdo->query('SELECT COUNT(*) FROM departments WHERE is_active = 1')->fetchColumn();

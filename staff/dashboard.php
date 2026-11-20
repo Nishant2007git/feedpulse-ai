@@ -14,15 +14,15 @@ $staffId = $_SESSION['user_id'];
 $deptId  = $_SESSION['department_id'] ?? null;
 
 // Metrics
-$assignedStmt = $pdo->prepare('SELECT COUNT(*) FROM complaints WHERE assigned_to = ? AND status IN ("open","in_progress","escalated")');
+$assignedStmt = $pdo->prepare("SELECT COUNT(*) FROM complaints WHERE assigned_to = ? AND status IN ('open','in_progress','escalated')");
 $assignedStmt->execute([$staffId]);
 $myActiveCount = (int)$assignedStmt->fetchColumn();
 
-$breachedStmt = $pdo->prepare('SELECT COUNT(*) FROM complaints WHERE (assigned_to = ? OR department_id = ?) AND sla_breached = 1 AND status != "resolved"');
+$breachedStmt = $pdo->prepare("SELECT COUNT(*) FROM complaints WHERE (assigned_to = ? OR department_id = ?) AND sla_breached = 1 AND status != 'resolved'");
 $breachedStmt->execute([$staffId, $deptId]);
 $breachedCount = (int)$breachedStmt->fetchColumn();
 
-$resolvedStmt = $pdo->prepare('SELECT COUNT(*) FROM complaints WHERE assigned_to = ? AND status = "resolved"');
+$resolvedStmt = $pdo->prepare("SELECT COUNT(*) FROM complaints WHERE assigned_to = ? AND status = 'resolved'");
 $resolvedStmt->execute([$staffId]);
 $resolvedCount = (int)$resolvedStmt->fetchColumn();
 

@@ -170,8 +170,9 @@ function computeSlaDeadline(PDO $pdo, int $categoryId, string $createdAt): strin
     return $dt->format('Y-m-d H:i:s');
 }
 
-function getSlaStatus(string $deadline, int $breached): string {
+function getSlaStatus(?string $deadline, int $breached = 0): string {
     if ($breached) return 'breach';
+    if (!$deadline) return 'ok';
     $now       = new DateTime();
     $sla       = new DateTime($deadline);
     $remaining = $now->diff($sla);
@@ -181,8 +182,9 @@ function getSlaStatus(string $deadline, int $breached): string {
     return 'ok';
 }
 
-function slaRemainingText(string $deadline, int $breached): string {
+function slaRemainingText(?string $deadline, int $breached = 0): string {
     if ($breached) return 'SLA Breached';
+    if (!$deadline) return 'No Deadline';
     $now  = new DateTime();
     $sla  = new DateTime($deadline);
     if ($now >= $sla) return 'SLA Breached';
@@ -192,7 +194,8 @@ function slaRemainingText(string $deadline, int $breached): string {
     return $diff->i . 'm remaining';
 }
 
-function slaPct(string $createdAt, string $deadline): int {
+function slaPct(?string $createdAt, ?string $deadline): int {
+    if (!$createdAt || !$deadline) return 0;
     $created = new DateTime($createdAt);
     $sla     = new DateTime($deadline);
     $now     = new DateTime();
@@ -211,9 +214,9 @@ function addEngagementPoints(PDO $pdo, int $studentId, int $points): void {
         if (!$inTx) $pdo->beginTransaction();
 
         $pdo->prepare(
-            'INSERT INTO engagement_scores (student_id, score, tier)
-             VALUES (?, ?, "bronze")
-             ON DUPLICATE KEY UPDATE score = score + ?'
+            "INSERT INTO engagement_scores (student_id, score, tier)
+             VALUES (?, ?, 'bronze')
+             ON DUPLICATE KEY UPDATE score = score + ?"
         )->execute([$studentId, $points, $points]);
 
         // Update tier

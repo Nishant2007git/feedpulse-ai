@@ -47,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $finalStudentId = $isAnonymous ? null : $studentId;
 
         $insert = $pdo->prepare(
-            'INSERT INTO feedback (student_id, department_id, category_id, rating, title, comment, is_anonymous, moderation_status, ai_sentiment, ai_confidence)
-             VALUES (?, ?, ?, ?, ?, ?, ?, "pending", ?, ?)'
+            "INSERT INTO feedback (student_id, department_id, category_id, rating, title, comment, is_anonymous, moderation_status, ai_sentiment, ai_confidence)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)"
         );
         $insert->execute([$finalStudentId, $deptId, $catId, $rating, $title, $comment, $isAnonymous, $sentiment, $confidence]);
         $feedbackId = (int)$pdo->lastInsertId();

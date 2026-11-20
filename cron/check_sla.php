@@ -62,8 +62,8 @@ foreach ($breachedTickets as $ticket) {
 
     // Insert into escalations log
     $pdo->prepare(
-        'INSERT INTO complaint_escalations (complaint_id, escalated_from, escalated_to, reason, notified_user) 
-         VALUES (?, ?, "critical", "SLA deadline exceeded", ?)'
+        "INSERT INTO complaint_escalations (complaint_id, escalated_from, escalated_to, reason, notified_user) 
+         VALUES (?, ?, 'critical', 'SLA deadline exceeded', ?)"
     )->execute([$ticket['id'], $ticket['priority'], $systemUserId]);
 
     // Notify administrators

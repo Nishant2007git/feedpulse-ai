@@ -51,14 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $hash = password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
 
                 $insert = $pdo->prepare(
-                    'INSERT INTO users (name, email, password_hash, role, department_id, roll_number, phone, is_active) 
-                     VALUES (?, ?, ?, "student", ?, ?, ?, 1)'
+                    "INSERT INTO users (name, email, password_hash, role, department_id, roll_number, phone, is_active) 
+                     VALUES (?, ?, ?, 'student', ?, ?, ?, 1)"
                 );
                 $insert->execute([$name, $email, $hash, $deptId, $rollNumber, $phone]);
                 $newUserId = (int)$pdo->lastInsertId();
 
                 // Initialize engagement score record
-                $pdo->prepare('INSERT INTO engagement_scores (student_id, score, tier) VALUES (?, 0, "bronze")')
+                $pdo->prepare("INSERT INTO engagement_scores (student_id, score, tier) VALUES (?, 0, 'bronze')")
                     ->execute([$newUserId]);
 
                 logEvent($pdo, 'info', 'auth', 'New student registered', ['student_id' => $newUserId, 'dept_id' => $deptId], $newUserId);

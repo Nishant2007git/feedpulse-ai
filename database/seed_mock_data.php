@@ -68,7 +68,7 @@ foreach ($students as [$name, $email, $deptId, $roll, $phone, $score, $tier]) {
     $stmt->execute([$email]);
     $existing = $stmt->fetch();
     if (!$existing) {
-        $pdo->prepare('INSERT INTO users (name, email, password_hash, role, department_id, roll_number, phone, is_active) VALUES (?, ?, ?, "student", ?, ?, ?, 1)')
+        $pdo->prepare("INSERT INTO users (name, email, password_hash, role, department_id, roll_number, phone, is_active) VALUES (?, ?, ?, 'student', ?, ?, ?, 1)")
             ->execute([$name, $email, $passwordHash, $deptId, $roll, $phone]);
         $sId = (int)$pdo->lastInsertId();
         $studentIds[] = $sId;
@@ -184,28 +184,28 @@ if ($cmpCount < 5) {
         $cmpId = (int)$pdo->lastInsertId();
 
         // Audit Trail 1: Ticket created
-        $pdo->prepare('INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note, created_at) VALUES (?, ?, NULL, "open", "Complaint ticket registered by student", ?)')
+        $pdo->prepare("INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note, created_at) VALUES (?, ?, NULL, 'open', 'Complaint ticket registered by student', ?)")
             ->execute([$cmpId, $sId, $createdAt]);
 
         // Audit Trail 2: Assignment
         if ($assignedTo) {
             $assignedTime = date('Y-m-d H:i:s', strtotime("{$createdAt} + 1 hour"));
-            $pdo->prepare('INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note, created_at) VALUES (?, 2, "open", "in_progress", "Assigned to departmental resolution officer", ?)')
+            $pdo->prepare("INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note, created_at) VALUES (?, 2, 'open', 'in_progress', 'Assigned to departmental resolution officer', ?)")
                 ->execute([$cmpId, $assignedTime]);
         }
 
         // Audit Trail 3: Escalation
         if ($isBreached) {
-            $pdo->prepare('INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note, created_at) VALUES (?, 1, "in_progress", "escalated", "Automated SLA breach: priority bumped to CRITICAL", ?)')
+            $pdo->prepare("INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note, created_at) VALUES (?, 1, 'in_progress', 'escalated', 'Automated SLA breach: priority bumped to CRITICAL', ?)")
                 ->execute([$cmpId, $escalatedAt]);
 
-            $pdo->prepare('INSERT INTO complaint_escalations (complaint_id, escalated_from, escalated_to, reason, notified_user, created_at) VALUES (?, ?, "critical", "SLA deadline exceeded", 1, ?)')
+            $pdo->prepare("INSERT INTO complaint_escalations (complaint_id, escalated_from, escalated_to, reason, notified_user, created_at) VALUES (?, ?, 'critical', 'SLA deadline exceeded', 1, ?)")
                 ->execute([$cmpId, $priority, $escalatedAt]);
         }
 
         // Audit Trail 4: Resolution
         if ($resolvedAt) {
-            $pdo->prepare('INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note, created_at) VALUES (?, ?, "in_progress", "resolved", ?, ?)')
+            $pdo->prepare("INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note, created_at) VALUES (?, ?, 'in_progress', 'resolved', ?, ?)")
                 ->execute([$cmpId, $assignedTo ?: 2, $resNote, $resolvedAt]);
 
             // Post Resolution Survey
@@ -221,7 +221,7 @@ if ($cmpCount < 5) {
         }
 
         // Notifications
-        $pdo->prepare('INSERT INTO notifications (user_id, title, message, type, related_id, is_read, created_at) VALUES (?, ?, ?, "complaint", ?, 0, ?)')
+        $pdo->prepare("INSERT INTO notifications (user_id, title, message, type, related_id, is_read, created_at) VALUES (?, ?, ?, 'complaint', ?, 0, ?)")
             ->execute([$sId, "Update on {$refNum}", "Your ticket {$refNum} status is currently: {$status}", $cmpId, $createdAt]);
     }
     logMsg("  + Inserted " . count($complaintTemplates) . " complaint tickets with audit logs, SLA countdowns, and surveys.");

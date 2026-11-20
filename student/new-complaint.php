@@ -46,16 +46,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // 3. Insert complaint
             $stmt = $pdo->prepare(
-                'INSERT INTO complaints (reference_number, student_id, department_id, category_id, title, description, priority, status, sla_deadline, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, "open", ?, ?)'
+                "INSERT INTO complaints (reference_number, student_id, department_id, category_id, title, description, priority, status, sla_deadline, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 'open', ?, ?)"
             );
             $stmt->execute([$refNumber, $studentId, $deptId, $catId, $title, $description, $priority, $slaDeadline, $createdAt]);
             $complaintId = (int)$pdo->lastInsertId();
 
             // 4. Initial audit log entry
             $pdo->prepare(
-                'INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note)
-                 VALUES (?, ?, "open", "open", "Ticket created by student")'
+                "INSERT INTO complaint_updates (complaint_id, updated_by, old_status, new_status, note)
+                 VALUES (?, ?, 'open', 'open', 'Ticket created by student')"
             )->execute([$complaintId, $studentId]);
 
             // 5. Handle File Attachment

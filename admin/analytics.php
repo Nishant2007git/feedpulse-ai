@@ -35,6 +35,14 @@ require_once __DIR__ . '/../includes/header.php';
     <h2 class="fw-bold mb-1"><i class="bi bi-graph-up-arrow text-accent me-2"></i>Institutional Intelligence & Analytics</h2>
     <p class="text-secondary small mb-0">Departmental accountability scores, sentiment metrics, and SLA breach trends</p>
   </div>
+  <div class="d-flex gap-2">
+    <a href="<?= APP_URL ?>/admin/export.php?type=feedback" class="fp-btn fp-btn-glass" title="Export Student Feedback to CSV">
+      <i class="bi bi-file-earmark-text text-info me-1"></i> Feedback CSV
+    </a>
+    <a href="<?= APP_URL ?>/admin/export.php?type=complaints" class="fp-btn fp-btn-glass" title="Export Complaints to CSV">
+      <i class="bi bi-file-earmark-spreadsheet-fill text-success me-1"></i> Complaints CSV
+    </a>
+  </div>
 </div>
 
 <!-- Charts Row -->

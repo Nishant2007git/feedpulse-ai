@@ -47,6 +47,9 @@ require_once __DIR__ . '/../includes/header.php';
     <p class="text-secondary small mb-0">Tickets under your jurisdiction requiring investigation, status transition, or resolution</p>
   </div>
   <div class="d-flex gap-2">
+    <a href="<?= APP_URL ?>/admin/export.php?type=complaints" class="fp-btn fp-btn-glass" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;" title="Download Department CSV">
+      <i class="bi bi-file-earmark-spreadsheet text-success me-1"></i> Export CSV
+    </a>
     <a href="<?= APP_URL ?>/staff/complaints.php?filter=assigned" class="fp-btn <?= $filter === 'assigned' ? 'fp-btn-primary' : 'fp-btn-glass' ?>" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;">My Assigned</a>
     <a href="<?= APP_URL ?>/staff/complaints.php?filter=unassigned" class="fp-btn <?= $filter === 'unassigned' ? 'fp-btn-primary' : 'fp-btn-glass' ?>" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;">Unassigned in Dept</a>
   </div>

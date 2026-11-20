@@ -137,7 +137,10 @@ require_once __DIR__ . '/../includes/header.php';
           <div class="fp-form-label mb-2"><i class="bi bi-paperclip"></i> Uploaded Evidence:</div>
           <div class="d-flex flex-wrap gap-2">
             <?php foreach ($attachments as $att): ?>
-              <a href="<?= APP_URL ?>/uploads/attachments/<?= escAttr($att['stored_name']) ?>" target="_blank" class="fp-btn fp-btn-glass" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+              <?php 
+                $attHref = !empty($att['file_blob']) ? 'data:' . escAttr($att['mime_type']) . ';base64,' . $att['file_blob'] : APP_URL . '/uploads/attachments/' . escAttr($att['stored_name']);
+              ?>
+              <a href="<?= $attHref ?>" download="<?= escAttr($att['original_name']) ?>" target="_blank" class="fp-btn fp-btn-glass" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
                 <i class="bi bi-file-earmark-arrow-down"></i> <?= escHtml($att['original_name']) ?> (<?= round($att['size_bytes'] / 1024) ?> KB)
               </a>
             <?php endforeach; ?>

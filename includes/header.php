@@ -22,6 +22,12 @@ $pageTitle = $pageTitle ?? APP_NAME . ' — Campus Intelligence';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#06b6d4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FeedPulse AI">
+  <link rel="manifest" href="<?= APP_URL ?>/manifest.json">
+  <link rel="apple-touch-icon" href="<?= APP_URL ?>/assets/img/icon-192.png">
   <?php if ($isLoggedIn): ?>
   <meta name="robots" content="noindex, nofollow">
   <?php endif; ?>

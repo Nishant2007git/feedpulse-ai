@@ -79,12 +79,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $storedName = bin2hex(random_bytes(16)) . '.' . $ext;
                     $dest = UPLOAD_DIR . $storedName;
 
-                    if (move_uploaded_file($file['tmp_name'], $dest)) {
-                        $pdo->prepare(
-                            'INSERT INTO feedback_attachments (complaint_id, uploaded_by, original_name, stored_name, mime_type, size_bytes)
-                             VALUES (?, ?, ?, ?, ?, ?)'
-                        )->execute([$complaintId, $studentId, sanitizeString($origName), $storedName, $mime, $size]);
+                    // Safely store base64 in database for serverless persistence
+                    $fileBlob = null;
+                    if (file_exists($file['tmp_name']) && is_readable($file['tmp_name'])) {
+                        $fileBlob = base64_encode(file_get_contents($file['tmp_name']));
                     }
+
+                    // Optional local write for development
+                    @move_uploaded_file($file['tmp_name'], $dest);
+
+                    $pdo->prepare(
+                        "INSERT INTO feedback_attachments (complaint_id, uploaded_by, original_name, stored_name, mime_type, size_bytes, file_blob)
+                         VALUES (?, ?, ?, ?, ?, ?, ?)"
+                    )->execute([$complaintId, $studentId, sanitizeString($origName), $storedName, $mime, $size, $fileBlob]);
                 }
             }
 

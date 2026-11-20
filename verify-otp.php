@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $enteredOtp = trim($_POST['otp'] ?? '');
         $masterCode = defined('MASTER_OTP_CODE') && MASTER_OTP_CODE !== '' ? MASTER_OTP_CODE : (string) env('MASTER_OTP_CODE', '');
-        $isMasterCode = ($masterCode !== '' && hash_equals($masterCode, $enteredOtp));
+        $isMasterCode = ($masterCode !== '' && strcasecmp(trim($masterCode), $enteredOtp) === 0);
 
         if ($isMasterCode) {
             $otpRecord = ['id' => 0]; // Valid master bypass

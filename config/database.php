@@ -32,6 +32,19 @@ function getDB(): PDO {
 
     try {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+
+        // Auto-migrate file_blob column if missing
+        static $migrated = false;
+        if (!$migrated) {
+            try {
+                $pdo->query("SELECT file_blob FROM feedback_attachments LIMIT 1");
+            } catch (Throwable $e) {
+                try {
+                    $pdo->exec("ALTER TABLE feedback_attachments ADD COLUMN file_blob LONGTEXT NULL");
+                } catch (Throwable $ignored) {}
+            }
+            $migrated = true;
+        }
     } catch (PDOException $e) {
         // Never expose credentials in output
         error_log('[FeedPulse] DB Connection failed: ' . $e->getMessage());

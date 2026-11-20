@@ -11,15 +11,22 @@ require_once __DIR__ . '/../includes/notifications.php';
 require_once __DIR__ . '/../includes/logger.php';
 
 // Prevent unauthorized web access
-$providedKey = (string) ($_GET['key'] ?? '');
-if (php_sapi_name() !== 'cli' && (!hash_equals(CRON_SECRET, $providedKey))) {
+$providedKey = (string) ($_GET['key'] ?? ($_GET['secret'] ?? ''));
+$isVercelCron = !empty($_SERVER['HTTP_X_VERCEL_CRON']);
+$isAuthorized = (php_sapi_name() === 'cli') || $isVercelCron || ($providedKey !== '' && hash_equals(CRON_SECRET, $providedKey));
+
+if (!$isAuthorized) {
     http_response_code(403);
-    die("Access denied. CLI only or valid key required.\n");
+    die(json_encode(['error' => 'Access denied. CLI only or valid secret key required.']));
+}
+
+$isWeb = (php_sapi_name() !== 'cli');
+if ($isWeb) {
+    header('Content-Type: application/json; charset=utf-8');
 }
 
 $pdo = getDB();
 $now = date('Y-m-d H:i:s');
-echo "[{$now}] Running FeedPulse AI SLA Escalation Engine...\n";
 
 // Lookup active administrative system account
 $sysUserStmt = $pdo->query("SELECT id FROM users WHERE role = 'super_admin' AND is_active = 1 ORDER BY id ASC LIMIT 1");
@@ -89,20 +96,29 @@ foreach ($breachedTickets as $ticket) {
 // ── 2. Detect SLA Approaching Warnings ──────────────────────
 // Tickets within 8 hours of deadline not yet breached
 $warnStmt = $pdo->prepare(
-    'SELECT c.* 
+    "SELECT c.* 
      FROM complaints c
      WHERE c.status IN ('open', 'in_progress')
        AND c.sla_breached = 0
-       AND c.sla_deadline BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 8 HOUR)'
+       AND c.sla_deadline BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 8 HOUR)"
 );
 $warnStmt->execute();
 $warningTickets = $warnStmt->fetchAll();
 
-echo "Found " . count($warningTickets) . " tickets in warning threshold.\n";
-foreach ($warningTickets as $wt) {
-    if ($wt['assigned_to']) {
-        notifySlaWarning($pdo, (int)$wt['assigned_to'], $wt);
+if ($isWeb) {
+    echo json_encode([
+        'status'         => 'ok',
+        'timestamp'      => $now,
+        'breached_count' => count($breachedTickets),
+        'warning_count'  => count($warningTickets),
+        'message'        => 'FeedPulse AI SLA Escalation Engine completed successfully.'
+    ]);
+} else {
+    echo "Found " . count($warningTickets) . " tickets in warning threshold.\n";
+    foreach ($warningTickets as $wt) {
+        if ($wt['assigned_to']) {
+            notifySlaWarning($pdo, (int)$wt['assigned_to'], $wt);
+        }
     }
+    echo "SLA Engine completed successfully.\n";
 }
-
-echo "SLA Engine completed successfully.\n";

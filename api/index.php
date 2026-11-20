@@ -22,12 +22,14 @@ if (is_file($target)) {
     } else {
         // Static file fallback
         $mimes = [
-            'css' => 'text/css',
-            'js'  => 'application/javascript',
-            'png' => 'image/png',
-            'jpg' => 'image/jpeg',
-            'svg' => 'image/svg+xml',
-            'ico' => 'image/x-icon',
+            'css'          => 'text/css',
+            'js'           => 'application/javascript',
+            'png'          => 'image/png',
+            'jpg'          => 'image/jpeg',
+            'svg'          => 'image/svg+xml',
+            'ico'          => 'image/x-icon',
+            'json'         => 'application/manifest+json',
+            'webmanifest'  => 'application/manifest+json',
         ];
         header('Content-Type: ' . ($mimes[$ext] ?? 'application/octet-stream'));
         readfile($target);

@@ -63,6 +63,9 @@
     </div>
   </footer>
 
+  <!-- Floating Live Notification Container -->
+  <div id="fp-toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 10500;"></div>
+
   <!-- Bootstrap 5 Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Chart.js for Dashboards -->
